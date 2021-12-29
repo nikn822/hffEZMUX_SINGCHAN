@@ -330,11 +330,17 @@ void TSL2591::getSensor(sensor_t* sensor) {
 /*
 THIS IS THE FUNCTIONS STUDENTS MUST INTERACT WITH
 */
-void TSL2591::simpleRead(int row, int column)
+struct simpleReadOut{
+	int ms;
+	int lum;
+}
+
+simpleReadOut TSL2591::simpleRead(int row, int column)
 {
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
   // or 'visible' (difference between the two) channels.
   // This can take 100-600 milliseconds! Uncomment whichever of the following you want to read
+ 	simpleReadOut sro;
  	if(row == 1 || row == 2){
 		if (row ==1){tcaselect1(column);}
 		if (row == 2){tcaselect1(column+4);}
@@ -343,16 +349,26 @@ void TSL2591::simpleRead(int row, int column)
 		if (row ==3){tcaselect2(column);}
 		if (row == 4){tcaselect2(column+4);}
 	}
-  uint16_t x = getLuminosity(TSL2591_VISIBLE);
-  //uint16_t x = getLuminosity(TSL2591_FULLSPECTRUM);
-  //uint16_t x = getLuminosity(TSL2591_INFRARED);
+ 	uint16_t x = getLuminosity(TSL2591_VISIBLE);
+ 	//uint16_t x = getLuminosity(TSL2591_FULLSPECTRUM);
+ 	//uint16_t x = getLuminosity(TSL2591_INFRARED);
 
-  Serial.print(F("[ ")); Serial.print(millis()); Serial.print(F(" ms ] "));
-  Serial.print(F("Luminosity: "));
-  Serial.println(x, DEC);
+	sro.ms= millis();
+	sro.lum = x;
+	return sro;
 }
+
+struct advReadOut{
+	int ms;
+	int ir;
+	int full;
+	int vis;
+	int lux;
+}
+
 void TSL2591::advancedRead(int row, int column)
 {
+	advReadOut aro;
   	if(row == 1 || row == 2){
 		if (row ==1){tcaselect1(column);}
 		if (row == 2){tcaselect1(column+4);}
@@ -367,11 +383,11 @@ void TSL2591::advancedRead(int row, int column)
   uint16_t ir, full;
   ir = lum >> 16;
   full = lum & 0xFFFF;
-  Serial.print(F("[ ")); Serial.print(millis()); Serial.print(F(" ms ] "));
-  Serial.print(F("IR: ")); Serial.print(ir);  Serial.print(F("  "));
-  Serial.print(F("Full: ")); Serial.print(full); Serial.print(F("  "));
-  Serial.print(F("Visible: ")); Serial.print(full - ir); Serial.print(F("  "));
-  Serial.print(F("Lux: ")); Serial.println(calculateLux(full, ir), 6);
+  aro.ms = millis();
+  aro.ir = ir;
+  aro.full = full;
+  aro.vis=(full - ir);
+  aro.lux = calculateLux(full, ir);
 }
 void TSL2591::configureSensor(int row, int column)
 {
@@ -416,7 +432,7 @@ int **simleReadMatrix(){
 	int **simReadMat int *[4][4]
 	for(i = 0; i<4; i++){
 		for(j = 0; j<4; j++){
-			simReadMat[i][j] = simpleRead(i,j);
+			simReadMat[i][j] = simpleRead(i,j).lum;
 		}
 	}
 	return simReadMat;
