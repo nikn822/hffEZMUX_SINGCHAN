@@ -25,14 +25,14 @@ TSL2591::TSL2591(){
 //Enable Function
 void tcaselect1(uint8_t i) {
 	if (i > 7) return;
-	Disable_tcaselect2;
+	Disable_tcaselect2();
 	Wire.beginTransmission(0x70);
 	Wire.write(1 << i);
 	Wire.endTransmission();  
 }
 void tcaselect2(uint8_t i) {
 	if (i > 7) return;
-	Disable_tcaselect1;
+	Disable_tcaselect1();
 	Wire.beginTransmission(0x77);
 	Wire.write(1 << i);
 	Wire.endTransmission();  
