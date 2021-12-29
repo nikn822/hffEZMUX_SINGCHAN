@@ -366,7 +366,7 @@ struct advReadOut{
 	int lux;
 }
 
-void TSL2591::advancedRead(int row, int column)
+advReadOut TSL2591::advancedRead(int row, int column)
 {
 	advReadOut aro;
   	if(row == 1 || row == 2){
@@ -377,17 +377,18 @@ void TSL2591::advancedRead(int row, int column)
 		if (row ==3){tcaselect2(column);}
 		if (row == 4){tcaselect2(column+4);}
 	}
-  // More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
-  // That way you can do whatever math and comparisons you want!
-  uint32_t lum = getFullLuminosity();
-  uint16_t ir, full;
-  ir = lum >> 16;
-  full = lum & 0xFFFF;
-  aro.ms = millis();
-  aro.ir = ir;
-  aro.full = full;
-  aro.vis=(full - ir);
-  aro.lux = calculateLux(full, ir);
+	// More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
+	// That way you can do whatever math and comparisons you want!
+ 	uint32_t lum = getFullLuminosity();
+ 	uint16_t ir, full;
+ 	ir = lum >> 16;
+ 	full = lum & 0xFFFF;
+ 	aro.ms = millis();
+ 	aro.ir = ir;
+ 	aro.full = full;
+ 	aro.vis=(full - ir);
+	aro.lux = calculateLux(full, ir);
+	return aro.
 }
 void TSL2591::configureSensor(int row, int column)
 {
