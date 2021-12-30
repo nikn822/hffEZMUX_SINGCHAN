@@ -283,13 +283,26 @@ uint8_t TSL2591::getStatus(void) {
 	return x;
 }
 
+void TSL2591::fileConfig(void)
+{
+  snprintf(filename, sizeof(filename), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year()); // includes a three-digit sequence number in the file name
+  dataFile.open(filename, O_RDWR | O_CREAT | O_AT_END);
+  dataFile.print("milliseconds");
+  dataFile.print("\tIR Luminosity");
+  dataFile.print("\tFull Luminosity");
+  dataFile.print("\tVisible Luminosity");
+  dataFile.print("\tLux");
+  dataFile.println(""); // new line for subsequent data output
+  dataFile.close();
+}
+
 //Reffered functions
 
 /*
 THIS IS THE FUNCTIONS STUDENTS MUST INTERACT WITH
 */
 
-simpleReadOut TSL2591::simpleRead(int row, int column)
+void TSL2591::simpleRead(int row, int column)
 {
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
   // or 'visible' (difference between the two) channels.
@@ -312,7 +325,7 @@ simpleReadOut TSL2591::simpleRead(int row, int column)
 }
 
 
-advReadOut TSL2591::advancedRead(int row, int column)
+void TSL2591::advancedRead(int row, int column)
 {
 	Wire.begin();
 	if (row == 1 || row == 2) {
@@ -335,6 +348,26 @@ advReadOut TSL2591::advancedRead(int row, int column)
 	aro.vis = (full - ir);
 	aro.lux = calculateLux(full, ir);
 }
+
+void TSL2591::saveSD(){
+	fileConfig()
+	for(i = 0; i<4; i++){
+		for(j = 0; j<4; j++){
+			dataFile.print(advancedRead(i,j).ms, 3);
+			dataFile.print("\t");
+			dataFile.print(advancedRead(i,j).ir, 3);
+			dataFile.print("\t");
+			dataFile.print(advancedRead(i,j).full, 3);
+			dataFile.print("\t");
+			dataFile.print(advancedRead(i,j).vis, 3);
+			dataFile.print("\t");
+			dataFile.print(advancedRead(i,j).lux, 3);
+			dataFile.println("");
+		}
+	}
+	 dataFile.close();
+}
+
 
 void simleReadMatrix(){
 	for(i = 0; i<4; i++){

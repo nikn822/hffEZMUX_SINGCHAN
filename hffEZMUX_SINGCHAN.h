@@ -3,6 +3,13 @@
 #define _TSL2591_H_
 #include <Arduino.h>
 #include <i2c_t3.h>   // ADDED
+#include <SdFat.h>
+#include <TimeLib.h>
+
+const byte chipSelect = 10;
+SdFatSdio sd;
+SdFile dataFile;
+char filename[16]; // make it long enough to hold your longest file name, plus a null terminator
 
 #define TSL2591_VISIBLE (2)
 #define TSL2591_INFRARED (1)
@@ -127,6 +134,8 @@ public:
 	} aro;
 	int sroArray[4][4];
 
+	void fileConfig(void);
+
 	boolean begin(void);
 	void enable(void);
 	void disable(void);
@@ -149,7 +158,9 @@ public:
 	/* Student Functions*/
 	void simpleRead(int row, int column);
 	void advancedRead(int row, int column);
-	// int** simleReadMatrix();
+	void simleReadMatrix();
+	void saveSD();
+	void fileConfig(void);
 
 private:
 	void tcaselect1(uint8_t i);
