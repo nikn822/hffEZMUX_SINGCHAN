@@ -7,3 +7,4 @@ Easy way to interact with 16 different sensors.
  - ROW/COL SUPPORT
 
 # THINGS THAT NEED WORK
+- SD CARD DATA SAVE NEEDS TO BE ROBUST
