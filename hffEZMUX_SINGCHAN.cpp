@@ -1,7 +1,29 @@
-#include "hffEZMUX_SINGCHAN.h"
+#include "hffEZMUX_SINGCHAN_v2.h"
 #include <stdlib.h>
 #define _aAddress 0x29
+// SD CARD CONFIG
 #define SD_FAT_TYPE 3
+/*
+  Change the value of SD_CS_PIN if you are using SPI and
+  your hardware does not use the default value, SS.
+  Common values are:
+  Arduino Ethernet shield: pin 4
+  Sparkfun SD shield: pin 8
+  Adafruit SD shields and modules: pin 10
+*/
+
+// SDCARD_SS_PIN is defined for the built-in SD on some boards.
+#ifndef SDCARD_SS_PIN
+const uint8_t SD_CS_PIN = SS;
+#else  // SDCARD_SS_PIN
+// Assume built-in SD is used.
+const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
+#endif  // SDCARD_SS_PIN
+
+// Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
+#define SPI_CLOCK SD_SCK_MHZ(50)
+
+// Try to select the best SD card configuration.
 #if HAS_SDIO_CLASS
 #define SD_CONFIG SdioConfig(FIFO_SDIO)
 #elif  ENABLE_DEDICATED_SPI
@@ -9,9 +31,22 @@
 #else  // HAS_SDIO_CLASS
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
 #endif  // HAS_SDIO_CLASS
+
+//#if SD_FAT_TYPE == 0
+//SdFat sd;
+//File file;
+//#elif SD_FAT_TYPE == 1
+//SdFat32 sd;
+//File32 file;
+//#elif SD_FAT_TYPE == 2
+//SdExFat sd;
+//ExFile file;
+//#elif SD_FAT_TYPE == 3
 SdFs sd;
-FsFile dataFile;
-char fileName[16];
+FsFile file;
+//#else  // SD_FAT_TYPE
+//#error Invalid SD_FAT_TYPE
+//#endif  // SD_FAT_TYPE
 
 /*
                     ROWS GO THIS WAY>>>
@@ -296,15 +331,15 @@ uint8_t TSL2591::getStatus(void) {
 
 void TSL2591::fileConfig(void)
 {
-  snprintf(fileName, sizeof(fileName), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year()); // includes a three-digit sequence number in the file name
-  dataFile.open(fileName, O_RDWR | O_CREAT | O_AT_END);
-  dataFile.print("milliseconds");
-  dataFile.print("\tIR Luminosity");
-  dataFile.print("\tFull Luminosity");
-  dataFile.print("\tVisible Luminosity");
-  dataFile.print("\tLux");
-  dataFile.println(""); // new line for subsequent data output
-  dataFile.close();
+  //snprintf(filename, sizeof(filename), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year()); // includes a three-digit sequence number in the file name
+  //dataFile.open(filename, O_RDWR | O_CREAT | O_AT_END);
+  //dataFile.print("milliseconds");
+  //dataFile.print("\tIR Luminosity");
+  //dataFile.print("\tFull Luminosity");
+  //dataFile.print("\tVisible Luminosity");
+  //dataFile.print("\tLux");
+  //dataFile.println(""); // new line for subsequent data output
+  //dataFile.close();
 }
 
 //Reffered functions
@@ -327,6 +362,7 @@ void TSL2591::simpleRead(int row, int column)
 		if (row ==3){tcaselect2(column);}
 		if (row == 4){tcaselect2(column+4);}
 	}
+	begin();
  	uint16_t x = getLuminosity(TSL2591_VISIBLE);
 	//uint16_t x = getLuminosity(TSL2591_FULLSPECTRUM);
 	//uint16_t x = getLuminosity(TSL2591_INFRARED);
@@ -349,6 +385,7 @@ void TSL2591::advancedRead(int row, int column)
 	}
 	// More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
 	// That way you can do whatever math and comparisons you want!
+	begin();
 	uint32_t lum = getFullLuminosity();
 	uint16_t ir, full;
 	ir = lum >> 16;
@@ -361,35 +398,34 @@ void TSL2591::advancedRead(int row, int column)
 }
 
 void TSL2591::saveSD(){
-	sd.begin();
-	fileConfig();
-	dataFile.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+	snprintf(filename, sizeof(filename), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year());
+	sd.begin(SD_CONFIG);
+	file.open(filename, FILE_WRITE);
 	for(int i = 0; i<4; i++){
 		for(int j = 0; j<4; j++){
 			advancedRead(i,j);
-			dataFile.print(aro.ms, 3);
-			dataFile.print("\t");
-			dataFile.print(aro.ir, 3);
-			dataFile.print("\t");
-			dataFile.print(aro.full, 3);
-			dataFile.print("\t");
-			dataFile.print(aro.vis, 3);
-			dataFile.print("\t");
-			dataFile.print(aro.lux, 3);
-			dataFile.println("");
+			file.print(aro.ms, 3);
+			file.print("\t");
+			file.print(aro.ir, 3);
+			file.print("\t");
+			file.print(aro.full, 3);
+			file.print("\t");
+			file.print(aro.vis, 3);
+			file.print("\t");
+			file.print(aro.lux, 3);
+			file.println("");
 		}
 	}
-	dataFile.close();
+	file.close();
 }
 
 
 void simleReadMatrix(){
-	/*for(int i = 0; i<4; i++){
-		for(int j = 0; j<4; j++){
-			simpleRead(i,j);
-			sroArray[i][j] = sro.lum;
-		}
-	}*/
+	//for(i = 0; i<4; i++){
+	//	for(j = 0; j<4; j++){
+	//		sroArray[i][j] = simpleRead(i,j).lum;
+	//	}
+	//}
 } 
 
 
