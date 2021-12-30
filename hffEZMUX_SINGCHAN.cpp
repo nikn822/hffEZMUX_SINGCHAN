@@ -1,4 +1,4 @@
-#include "hffEZMUX_SINGCHAN_v2.h"
+#include "hffEZMUX_SINGCHAN.h"
 #include <stdlib.h>
 #define _aAddress 0x29
 // SD CARD CONFIG
