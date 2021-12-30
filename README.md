@@ -7,4 +7,3 @@ Easy way to interact with 16 different sensors.
  - ROW/COL SUPPORT
 
 # THINGS THAT NEED WORK
-- FIX MATRIX OUTPUT FUNCTION (Might be fixed)
