@@ -1,6 +1,17 @@
 #include "hffEZMUX_SINGCHAN.h"
 #include <stdlib.h>
 #define _aAddress 0x29
+#define SD_FAT_TYPE 3
+#if HAS_SDIO_CLASS
+#define SD_CONFIG SdioConfig(FIFO_SDIO)
+#elif  ENABLE_DEDICATED_SPI
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SPI_CLOCK)
+#else  // HAS_SDIO_CLASS
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
+#endif  // HAS_SDIO_CLASS
+SdFs sd;
+FsFile dataFile;
+char fileName[16];
 
 /*
                     ROWS GO THIS WAY>>>
@@ -285,8 +296,8 @@ uint8_t TSL2591::getStatus(void) {
 
 void TSL2591::fileConfig(void)
 {
-  snprintf(filename, sizeof(filename), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year()); // includes a three-digit sequence number in the file name
-  dataFile.open(filename, O_RDWR | O_CREAT | O_AT_END);
+  snprintf(fileName, sizeof(fileName), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year()); // includes a three-digit sequence number in the file name
+  dataFile.open(fileName, O_RDWR | O_CREAT | O_AT_END);
   dataFile.print("milliseconds");
   dataFile.print("\tIR Luminosity");
   dataFile.print("\tFull Luminosity");
@@ -350,31 +361,35 @@ void TSL2591::advancedRead(int row, int column)
 }
 
 void TSL2591::saveSD(){
-	fileConfig()
-	for(i = 0; i<4; i++){
-		for(j = 0; j<4; j++){
-			dataFile.print(advancedRead(i,j).ms, 3);
+	sd.begin();
+	fileConfig();
+	dataFile.open(fileName, O_RDWR | O_CREAT | O_AT_END);
+	for(int i = 0; i<4; i++){
+		for(int j = 0; j<4; j++){
+			advancedRead(i,j);
+			dataFile.print(aro.ms, 3);
 			dataFile.print("\t");
-			dataFile.print(advancedRead(i,j).ir, 3);
+			dataFile.print(aro.ir, 3);
 			dataFile.print("\t");
-			dataFile.print(advancedRead(i,j).full, 3);
+			dataFile.print(aro.full, 3);
 			dataFile.print("\t");
-			dataFile.print(advancedRead(i,j).vis, 3);
+			dataFile.print(aro.vis, 3);
 			dataFile.print("\t");
-			dataFile.print(advancedRead(i,j).lux, 3);
+			dataFile.print(aro.lux, 3);
 			dataFile.println("");
 		}
 	}
-	 dataFile.close();
+	dataFile.close();
 }
 
 
 void simleReadMatrix(){
-	for(i = 0; i<4; i++){
-		for(j = 0; j<4; j++){
-			sroArray[i][j] = simpleRead(i,j).lum;
+	/*for(int i = 0; i<4; i++){
+		for(int j = 0; j<4; j++){
+			simpleRead(i,j);
+			sroArray[i][j] = sro.lum;
 		}
-	}
+	}*/
 } 
 
 
@@ -389,7 +404,7 @@ uint8_t TSL2591::read8(uint8_t reg) {
 	value = Wire.readByte();
 	return value;
 }
-uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
+uint16_t TSL2591::read16(uint8_t reg) {
 	uint8_t buffer[2];
 	uint16_t value = 0;
 	Wire.beginTransmission(_aAddress);\
@@ -400,14 +415,14 @@ uint16_t Adafruit_TSL2591::read16(uint8_t reg) {
 	buffer[1] = Wire.readByte();
 	return uint16_t(buffer[1]) << 8 | uint16_t(buffer[0]);
 }
-void Adafruit_TSL2591::write8(uint8_t reg, uint8_t value) {
+void TSL2591::write8(uint8_t reg, uint8_t value) {
 	Wire.beginTransmission(_aAddress); //// MODIFIED RB
 	Wire.send(reg); /// TO BE MODIFIED? NO
 	Wire.send(value); /// TO BE MODIFIED? NO
 	Wire.endTransmission(); 
 }
 
-void Adafruit_TSL2591::write8(uint8_t reg) {
+void TSL2591::write8(uint8_t reg) {
 	Wire.beginTransmission(_aAddress); 
 	Wire.send(reg);
 	Wire.endTransmission();

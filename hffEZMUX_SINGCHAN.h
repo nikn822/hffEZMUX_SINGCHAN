@@ -6,10 +6,9 @@
 #include <SdFat.h>
 #include <TimeLib.h>
 
+
 const byte chipSelect = 10;
-SdFatSdio sd;
-SdFile dataFile;
-char filename[16]; // make it long enough to hold your longest file name, plus a null terminator
+ // make it long enough to hold your longest file name, plus a null terminator
 
 #define TSL2591_VISIBLE (2)
 #define TSL2591_INFRARED (1)
@@ -120,6 +119,7 @@ enum i2c_bus { WIRE_BUS, WIRE1_BUS, WIRE2_BUS };   // ADDED
 class TSL2591 {
 public:
 	TSL2591();
+	void fileConfig();
 	struct simpleReadOut {
 		float ms;
 		uint16_t lum;
@@ -133,9 +133,6 @@ public:
 		uint16_t lux;
 	} aro;
 	int sroArray[4][4];
-
-	void fileConfig(void);
-
 	boolean begin(void);
 	void enable(void);
 	void disable(void);
@@ -160,7 +157,7 @@ public:
 	void advancedRead(int row, int column);
 	void simleReadMatrix();
 	void saveSD();
-	void fileConfig(void);
+	
 
 private:
 	void tcaselect1(uint8_t i);
