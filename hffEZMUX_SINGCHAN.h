@@ -1,7 +1,6 @@
 #pragma once
 #ifndef _TSL2591_H_
 #define _TSL2591_H_
-#include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <i2c_t3.h>   // ADDED
 
@@ -111,9 +110,23 @@ enum i2c_bus { WIRE_BUS, WIRE1_BUS, WIRE2_BUS };   // ADDED
    Light Sensor
 */
 /**************************************************************************/
-class TSL2591 : public Adafruit_Sensor {
+class TSL2591 {
 public:
 	TSL2591();
+	struct simpleReadOut {
+		float ms;
+		uint16_t lum;
+	} sro;
+
+	struct advReadOut {
+		float ms;
+		int ir;
+		int full;
+		int vis;
+		uint16_t lux;
+	} aro;
+	int sroArray[4][4];
+
 	boolean begin(void);
 	void enable(void);
 	void disable(void);
@@ -133,15 +146,10 @@ public:
 		tsl2591Persist_t persist);
 	uint8_t getStatus();
 
-	/* Unified Sensor API Functions */
-	bool getEvent(sensors_event_t*);
-	void getSensor(sensor_t*);
-
 	/* Student Functions*/
 	void simpleRead(int row, int column);
 	void advancedRead(int row, int column);
-	void configureSensor(int row, int column);
-	int **simleReadMatrix();
+	// int** simleReadMatrix();
 
 private:
 	void tcaselect1(uint8_t i);
@@ -159,12 +167,5 @@ private:
 	uint8_t _aAddress;
 
 	boolean _initialized;
-	// ADDED RB :
-	i2c_bus _iBus; // Wire or Wire 1
-	i2c_mode _iMode; // MASTER OR SLAVE MODE
-	i2c_pins _pins;
-	i2c_pullup _pullup;
-	i2c_rate _iRate;
-	i2c_op_mode _opeMode;
 };
 #endif
