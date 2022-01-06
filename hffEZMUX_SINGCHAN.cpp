@@ -3,6 +3,7 @@
 #define _aAddress 0x29
 // SD CARD CONFIG
 #define SD_FAT_TYPE 3
+char filename[16];
 /*
   Change the value of SD_CS_PIN if you are using SPI and
   your hardware does not use the default value, SS.
@@ -32,21 +33,9 @@ const uint8_t SD_CS_PIN = SDCARD_SS_PIN;
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SPI_CLOCK)
 #endif  // HAS_SDIO_CLASS
 
-//#if SD_FAT_TYPE == 0
-//SdFat sd;
-//File file;
-//#elif SD_FAT_TYPE == 1
-//SdFat32 sd;
-//File32 file;
-//#elif SD_FAT_TYPE == 2
-//SdExFat sd;
-//ExFile file;
-//#elif SD_FAT_TYPE == 3
 SdFs sd;
 FsFile file;
-//#else  // SD_FAT_TYPE
-//#error Invalid SD_FAT_TYPE
-//#endif  // SD_FAT_TYPE
+
 
 /*
                     ROWS GO THIS WAY>>>
@@ -417,6 +406,62 @@ void TSL2591::saveSD(){
 		}
 	}
 	file.close();
+}
+void TSL2591::LEDReset(){
+	pinMode(24, INPUT_PULLUP);
+	pinMode(25, INPUT_PULLUP);
+	pinMode(26, INPUT_PULLUP);
+	pinMode(27, INPUT_PULLUP);
+	pinMode(28, OUTPUT);
+	pinMode(29, OUTPUT);
+	pinMode(30, OUTPUT);
+	pinMode(31, OUTPUT);
+
+}
+void TSL2591::LED(int row, int column){
+	LEDReset();
+	switch (column) {
+ 		case 0:
+ 			digitalWrite(24, HIGH);
+ 		break;
+
+		case 1:
+			digitalWrite(25, HIGH);
+	  	break;
+
+	  	case 2:
+			digitalWrite(26, HIGH);
+	  	break;
+
+	  	case 3:
+			digitalWrite(27, HIGH);
+	  	break;
+
+ 		default:
+		break;
+	}
+	switch (row) {
+ 		case 0:
+ 			digitalWrite(28, HIGH);
+ 		break;
+
+		case 1:
+			digitalWrite(29, HIGH);
+	  	break;
+
+	  	case 2:
+			digitalWrite(30, HIGH);
+	  	break;
+
+	  	case 3:
+			digitalWrite(31, HIGH);
+	  	break;
+
+ 		default:
+		break;
+	}
+
+
 }
 
 

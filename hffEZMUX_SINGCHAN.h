@@ -157,6 +157,8 @@ public:
 	void simleReadMatrix();
 	void saveSD(void);
 	void fileConfig(void);
+	void LEDReset();
+	void LED(int row, int column);
 
 private:
 	void tcaselect1(uint8_t i);
