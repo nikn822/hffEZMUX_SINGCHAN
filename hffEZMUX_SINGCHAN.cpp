@@ -408,33 +408,45 @@ void TSL2591::saveSD(){
 	file.close();
 }
 void TSL2591::LEDReset(){
-	pinMode(24, INPUT_PULLUP);
-	pinMode(25, INPUT_PULLUP);
-	pinMode(26, INPUT_PULLUP);
-	pinMode(27, INPUT_PULLUP);
+	pinMode(24, OUTPUT);
+	pinMode(25, OUTPUT);
+	pinMode(26, OUTPUT);
+	pinMode(27, OUTPUT);
 	pinMode(28, OUTPUT);
 	pinMode(29, OUTPUT);
 	pinMode(30, OUTPUT);
 	pinMode(31, OUTPUT);
 
 }
-void TSL2591::LED(int row, int column){
+void TSL2591::LED(int column, int row){
 	LEDReset();
 	switch (column) {
  		case 0:
  			digitalWrite(24, HIGH);
+ 			digitalWrite(25, LOW);
+ 			digitalWrite(26, LOW);
+ 			digitalWrite(27, LOW);
  		break;
 
 		case 1:
-			digitalWrite(25, HIGH);
+			digitalWrite(24, LOW);
+ 			digitalWrite(25, HIGH);
+ 			digitalWrite(26, LOW);
+ 			digitalWrite(27, LOW);
 	  	break;
 
 	  	case 2:
-			digitalWrite(26, HIGH);
+			digitalWrite(24, LOW);
+ 			digitalWrite(25, LOW);
+ 			digitalWrite(26, HIGH);
+ 			digitalWrite(27, LOW);
 	  	break;
 
 	  	case 3:
-			digitalWrite(27, HIGH);
+			digitalWrite(24, LOW);
+ 			digitalWrite(25, LOW);
+ 			digitalWrite(26, LOW);
+ 			digitalWrite(27, HIGH);
 	  	break;
 
  		default:
@@ -442,19 +454,31 @@ void TSL2591::LED(int row, int column){
 	}
 	switch (row) {
  		case 0:
- 			digitalWrite(28, HIGH);
+ 			digitalWrite(28, LOW);
+ 			digitalWrite(29, HIGH);
+ 			digitalWrite(30, HIGH);
+ 			digitalWrite(31, HIGH);
  		break;
 
 		case 1:
-			digitalWrite(29, HIGH);
+			digitalWrite(28, HIGH);
+ 			digitalWrite(29, LOW);
+ 			digitalWrite(30, HIGH);
+ 			digitalWrite(31, HIGH);
 	  	break;
 
 	  	case 2:
-			digitalWrite(30, HIGH);
+			digitalWrite(28, HIGH);
+ 			digitalWrite(29, HIGH);
+ 			digitalWrite(30, LOW);
+ 			digitalWrite(31, HIGH);
 	  	break;
 
 	  	case 3:
-			digitalWrite(31, HIGH);
+			digitalWrite(28, HIGH);
+ 			digitalWrite(29, HIGH);
+ 			digitalWrite(30, HIGH);
+ 			digitalWrite(31, LOW);
 	  	break;
 
  		default:
