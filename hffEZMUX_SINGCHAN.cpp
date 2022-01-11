@@ -337,40 +337,42 @@ void TSL2591::fileConfig(void)
 THIS IS THE FUNCTIONS STUDENTS MUST INTERACT WITH
 */
 
-void TSL2591::simpleRead(int row, int column)
+void TSL2591::simpleRead(int x, int y)
 {
   // Simple data read example. Just read the infrared, fullspecrtrum diode 
   // or 'visible' (difference between the two) channels.
   // This can take 100-600 milliseconds! Uncomment whichever of the following you want to read
+ 	LED(x,y);
  	Wire.begin();
-   	if(row == 1 || row == 2){
-		if (row ==1){tcaselect1(column);}
-		if (row == 2){tcaselect1(column+4);}
+   	if(y == 0 || y == 1){
+		if (y ==0){tcaselect1(x);}
+		if (y == 1){tcaselect1(x+4);}
 	}
-	if(row == 3 || row == 4){
-		if (row ==3){tcaselect2(column);}
-		if (row == 4){tcaselect2(column+4);}
+	if(y == 2 || y == 3){
+		if (y ==2){tcaselect2(x);}
+		if (y == 3){tcaselect2(x+4);}
 	}
 	begin();
- 	uint16_t x = getLuminosity(TSL2591_VISIBLE);
+ 	uint16_t lx = getLuminosity(TSL2591_VISIBLE);
 	//uint16_t x = getLuminosity(TSL2591_FULLSPECTRUM);
 	//uint16_t x = getLuminosity(TSL2591_INFRARED);
 
 	sro.ms = millis();
-	sro.lum = x;
+	sro.lum = lx;
 }
 
 
-void TSL2591::advancedRead(int row, int column)
+void TSL2591::advancedRead(int x, int y)
 {
+	LED(x,y);
 	Wire.begin();
-	if (row == 1 || row == 2) {
-		if (row == 1) { tcaselect1(column); }
-		if (row == 2) { tcaselect1(column + 4); }
+	if (y == 0 || y == 1) {
+		if (y == 0) { tcaselect1(x); }
+		if (y == 1) { tcaselect1(x + 4); }
 	}
-	if (row == 3 || row == 4) {
-		if (row == 3) { tcaselect2(column); }
-		if (row == 4) { tcaselect2(column + 4); }
+	if (y == 2 || y == 3) {
+		if (y == 2) { tcaselect2(x); }
+		if (y == 3) { tcaselect2(x + 4); }
 	}
 	// More advanced data read example. Read 32 bits with top 16 bits IR, bottom 16 bits full spectrum
 	// That way you can do whatever math and comparisons you want!
@@ -386,8 +388,15 @@ void TSL2591::advancedRead(int row, int column)
 	aro.lux = calculateLux(full, ir);
 }
 
+time_t getTeensy3Time()
+{
+  return Teensy3Clock.get();
+}
+
 void TSL2591::saveSD(){
-	snprintf(filename, sizeof(filename), "data%d:%d:%d_%d/%d/%d.csv", hour(),minute(),second(),day(),month(), year());
+	setSyncProvider(getTeensy3Time);
+	snprintf(filename, sizeof(filename), "%d_%d--%d-%d.csv", hour(),minute(),day(),month());
+	
 	sd.begin(SD_CONFIG);
 	file.open(filename, FILE_WRITE);
 	for(int i = 0; i<4; i++){

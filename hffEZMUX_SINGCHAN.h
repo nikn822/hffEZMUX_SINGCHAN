@@ -6,9 +6,6 @@
 #include "SdFat.h"
 #include <TimeLib.h>
 
-
-
-
 #define TSL2591_VISIBLE (2)
 #define TSL2591_INFRARED (1)
 #define TSL2591_FULLSPECTRUM (0) 
