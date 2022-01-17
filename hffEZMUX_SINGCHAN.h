@@ -2,9 +2,15 @@
 #ifndef _TSL2591_H_
 #define _TSL2591_H_
 #include <Arduino.h>
-#include <i2c_t3.h>   // ADDED
+#include <i2c_t3.h>
 #include "SdFat.h"
 #include <TimeLib.h>
+
+// Added in v2
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BME680.h"
+
+#define SEALEVELPRESSURE_HPA (1013.25)	// BME Macro
 
 #define TSL2591_VISIBLE (2)
 #define TSL2591_INFRARED (1)
@@ -112,9 +118,17 @@ enum i2c_bus { WIRE_BUS, WIRE1_BUS, WIRE2_BUS };   // ADDED
    Light Sensor
 */
 /**************************************************************************/
-class TSL2591 {
+class Nanolab {
 public:
-	TSL2591();
+	Nanolab();
+	struct hkReadOut {
+		float temperature;
+		uint32_t pressure;
+		float humidity;
+		uint32_t gas_resistance;
+		float alt;
+	} hkro
+		;
 	struct simpleReadOut {
 		float ms;
 		uint16_t lum;
@@ -156,6 +170,7 @@ public:
 	void fileConfig(void);
 	void LEDReset();
 	void LED(int row, int column);
+	void housekeeping(void);
 
 private:
 	void tcaselect1(uint8_t i);
